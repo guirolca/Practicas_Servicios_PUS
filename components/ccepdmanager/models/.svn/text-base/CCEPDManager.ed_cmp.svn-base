@@ -1,0 +1,550 @@
+import "../../../dataclasses/CDRecovAction/models/CDRecovAction.ed_dclass";
+import "../../../dataclasses/CDTMList/models/CDTMList.ed_dclass";
+import "../../../dataclasses/CDTCDescriptor/models/CDTCDescriptor.ed_dclass";
+import "../../../dataclasses/CDEventList/models/CDEventList.ed_dclass";
+import "../../../protocols/CPTMChannelCtrl/models/CPTMChannelCtrl.ed_prot";
+import "../../../protocols/CPTxTC/models/CPTxTC.ed_prot";
+import "../../../protocols/CPHK_FDIRCtrl/models/CPHK_FDIRCtrl.ed_prot";
+import "../../../protocols/CPBKGExecCtrl/models/CPBKGExecCtrl.ed_prot";
+import "../../../protocols/EDROOMServiceLibrary/models/EDROOMServiceLibrary.ed_prot";
+import "../../../sais/icuasw_pus_services_iface_v1/models/icuasw_pus_services_iface_v1.ed_sai";
+import "../../../sais/sc_channel_drv_iface_v1/models/sc_channel_drv_iface_v1.ed_sai";
+
+
+
+/**
+ * \class   CCEPDManager
+ *
+ */
+
+
+proactive component CCEPDManager{
+
+	uri := es.uah.aut.srg.edroom.mclev.cmp.CCEPDManager;
+	version := v1;
+	stack_size := 1024;
+	def_max_nb_messages := 10;
+	requires := icuasw_pus_services_iface(v1),
+			sc_channel_drv_iface(v1);
+
+
+
+
+	structure {
+
+		ports {
+
+
+			system port EDROOMsl
+			{
+				id:= 0;
+				protocol:= EDROOMServiceLibrary(v1);
+			};
+			conjugated  external port BKGExecCtrl {
+				id := 1;
+				cardinality := 1;
+				protocol := CPBKGExecCtrl(v1);
+
+			};
+
+			conjugated  external port HK_FDIRCtrl {
+				id := 2;
+				cardinality := 1;
+				protocol := CPHK_FDIRCtrl(v1);
+
+			};
+
+			interrupt port RxTC {
+				id := 3;
+				irq vectors := 18;
+				data pool := CDTCDescriptor(v1)CDEDROOMPoolCDTCDescriptor[10];
+				protocol := CPTxTC(v1);
+
+				non_maskable := false;
+				enable_msg_to_component := true;
+				priority := 1;
+				enable_bottom_half := true;
+				top half {
+					<code>
+
+						#ifdef A3P_PLATFORM 
+						 
+						EDROOMIRQ18BottomHalfSignal=EDROOMVarIRQ18.HandleIRQ();
+						 
+						#endif
+
+					</code>
+				};
+				bottom half {
+					<code>
+
+						#ifndef A3P_PLATFORM 
+						 
+						GetNextTC(&EDROOMVarIRQ18);
+						 
+						#endif
+
+					</code>
+				};
+			};
+
+			conjugated  external port TMChannelCtrl {
+				id := 4;
+				cardinality := 1;
+				protocol := CPTMChannelCtrl(v1);
+
+			};
+
+
+
+		};
+
+
+		data pools {
+			CDTMList(v1) CEDROOMPoolCDTMList[10];
+			CDTCDescriptor(v1) CEDROOMPoolCDTCDescriptor[10];
+
+		};
+
+
+	};
+
+
+	behaviour {
+
+		contexts {
+
+
+			context Top_0{
+
+
+				id := 0;
+
+
+				variables {
+					variable VCurrentEvList{
+					 class := CDEventList(v1);
+
+					 constructor := "";
+					 dimension := 0;
+					};
+					variable VCurrentTC{
+					 class := CDTCDescriptor(v1);
+
+					 constructor := "";
+					 dimension := 0;
+					};
+					variable VCurrentTMList{
+					 class := CDTMList(v1);
+
+					 constructor := "";
+					 dimension := 0;
+					};
+
+
+				};
+
+
+				states {
+					state I{
+						id := 0;
+					};
+					state Ready{
+						id := 1;
+					};
+					state Reboot{
+						id := 2;
+					};
+				};
+
+
+				join points{
+
+					join point ValidTC{
+						id := 0;
+
+						output branch HandleTC{
+							id := 0;
+							sink := HandleTC;
+
+						};
+					};
+				};
+
+
+				init state := I;
+
+
+				guards{
+
+					/**
+					 * \brief  
+					 */
+
+					guard GAcceptTC {
+						<code>
+						return PUSService1::AcceptTC(VCurrentTC,VCurrentTMList);
+
+
+						</code>
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					guard GFwdToBKG {
+						<code>
+						return VCurrentTC.IsBKGTC();
+
+
+						</code>
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					guard GFwdToHK_FDIR {
+						<code>
+						return VCurrentTC.IsHK_FDIRTC();
+
+
+						</code>
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					guard GToReboot {
+						<code>
+						return VCurrentTC.IsRebootTC();
+
+
+						</code>
+
+					};
+
+
+				};
+
+
+				items{
+					/**
+					 * \brief  
+					 */
+
+					action FExecPrioTC {
+						<code>
+						 PUS_PrioTC::ExecTC(VCurrentTC,VCurrentTMList,VCurrentEvList);
+
+
+						</code>
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					send FFwdBKGTC {
+						code {
+							<code>
+								
+									// Complete Data 
+								
+								*pSBKGTC_Data=VCurrentTC;
+
+
+							</code>
+						};
+
+						port :=BKGExecCtrl;
+
+						message :=CPBKGExecCtrl(v1)::SBKGTC;
+
+						priority :=3;
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					send FFwdHK_FDIRTC {
+						code {
+							<code>
+								
+									// Complete Data 
+								
+								*pSHK_FDIR_TC_Data=VCurrentTC;
+
+
+							</code>
+						};
+
+						port :=HK_FDIRCtrl;
+
+						message :=CPHK_FDIRCtrl(v1)::SHK_FDIR_TC;
+
+						priority :=3;
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					msgdatahandler FGetTC {
+						code {
+							<code>
+								
+									// Data access
+								
+								VCurrentTC=varEDROOMIRQsignal;
+
+
+							</code>
+						};
+
+						port :=RxTC;
+
+						message :=CPTxTC(v1)::EDROOMIRQsignal;
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					action FInit {
+						<code>
+						RxTC.InstallHandler();
+						Init_sc_channel();
+
+
+						</code>
+
+					};
+
+					/**
+					 * \brief  
+					 */
+
+					invoke FTxTMList {
+						code {
+							<code>
+								
+									// Complete Data 
+								
+								*pSTxTM_Data=VCurrentTMList;    
+								VCurrentTMList.Clear();
+
+
+							</code>
+						};
+
+						port :=TMChannelCtrl;
+
+						message :=CPTMChannelCtrl(v1)::STxTM;
+
+						priority :=1;
+
+					};
+
+					/**
+					 * \brief 
+					 */
+
+					msgdatahandler FHandleRecAction {
+						code {
+							<code>
+							PUSService19::GetRecActionTCDescriptor(varSRecAction,VCurrentTC);
+
+
+							</code>
+						};
+
+						port :=HK_FDIRCtrl;
+
+						message :=CPHK_FDIRCtrl(v1)::SRecAction;
+
+					};
+
+
+				};
+
+
+				choice points{
+					choice point NewRxTC{
+
+
+						id := 0;
+
+
+						branches{
+
+							branch NewRxTC_Accepted{
+								id := 0;
+								sink := ValidTC;
+
+
+								handshakes{
+									handshake{
+										invoke := FTxTMList;
+									};
+								};
+
+								guard := GAcceptTC;
+
+							};
+
+
+						};
+
+						default branch NewRxTC_NotAccepted{
+							id := 1;
+							sink := Ready;
+
+
+							handshakes{
+								handshake{
+									invoke := FTxTMList;
+								};
+							};
+						};
+					};
+					choice point HandleTC{
+
+
+						id := 1;
+
+
+						branches{
+
+							branch HandleTC_ToReboot{
+								id := 0;
+								sink := Reboot;
+
+
+								actions := FExecPrioTC;
+
+								handshakes{
+									handshake{
+										invoke := FTxTMList;
+									};
+								};
+
+								guard := GToReboot;
+
+							};
+
+							branch HandleTC_FwdHK_FDIRTC{
+								id := 1;
+								sink := Ready;
+
+
+								sends := FFwdHK_FDIRTC;
+
+								guard := GFwdToHK_FDIR;
+
+							};
+
+							branch HandleTC_FwdBKGTC{
+								id := 2;
+								sink := Ready;
+
+
+								sends := FFwdBKGTC;
+
+								guard := GFwdToBKG;
+
+							};
+
+
+						};
+
+						default branch HandleTC_ExecPrioTC{
+							id := 3;
+							sink := Ready;
+
+
+							actions := FExecPrioTC;
+
+							handshakes{
+								handshake{
+									invoke := FTxTMList;
+								};
+							};
+						};
+					};
+				};
+
+
+				transitions{
+
+					transition Init{
+						id := 0;
+						source := I;
+						sink := Ready;
+
+
+						actions := FInit;
+
+
+						asynchronous trigger {
+							port := EDROOMsl;
+							message := EDROOMServiceLibrary(v1)::EDROOMStart;
+						};
+					};
+
+					transition NewRxTC{
+						id := 1;
+						source := Ready;
+						sink := NewRxTC;
+
+
+						msgdatahandler := FGetTC;
+
+
+						asynchronous trigger {
+							port := RxTC;
+							message := CPTxTC(v1)::EDROOMIRQsignal;
+						};
+					};
+
+					transition RecActionTC{
+						id := 3;
+						source := Ready;
+						sink := ValidTC;
+
+
+						msgdatahandler := FHandleRecAction;
+
+
+						asynchronous trigger {
+							port := HK_FDIRCtrl;
+							message := CPHK_FDIRCtrl(v1)::SRecAction;
+						};
+					};
+
+
+				};
+
+
+			};
+
+
+		};
+
+		top context := Top_0;
+
+
+	};
+
+
+};

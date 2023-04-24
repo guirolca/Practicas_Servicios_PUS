@@ -1,0 +1,175 @@
+10
+
+dir
+27
+https://svn.riouxsvn.com/ic_se_09100047m/trunk/asw_pus_19_x_rtems_project_students
+https://svn.riouxsvn.com/ic_se_09100047m
+
+
+
+2022-05-19T18:54:07.768216Z
+27
+sergiology
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0781b154-d07a-4911-af3f-2a8f1f1a18d6
+
+.cproject
+file
+28
+
+
+
+2021-06-08T11:14:18.000000Z
+715506331b5363fb8bc52a1f0db290cc
+2022-05-19T19:02:38.526946Z
+28
+sergiology
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+41854
+
+.project
+file
+28
+
+
+
+2021-06-08T11:14:16.000000Z
+b69774655ab5f0ed829356bd34842248
+2022-05-19T19:02:38.526946Z
+28
+sergiology
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2504
+
+.settings
+dir
+
+Debug
+dir
+
+components
+dir
+
+config
+dir
+
+data
+dir
+
+dataclasses
+dir
+
+edroom_glue
+dir
+
+edroombp_swr
+dir
+
+edroomsl_swr
+dir
+
+edroomsl_types_swr
+dir
+
+icuasw_mmesp_project.cpp
+file
+28
+
+
+
+2022-05-19T18:53:14.000000Z
+6672f13e8d248e12cdad6a412c07c446
+2022-05-19T19:02:38.526946Z
+28
+sergiology
+has-props
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1446
+
+protocols
+dir
+
+rtems_osswr
+dir
+
+sais
+dir
+
+swinterfaces
+dir
+
+swpackages
+dir
+

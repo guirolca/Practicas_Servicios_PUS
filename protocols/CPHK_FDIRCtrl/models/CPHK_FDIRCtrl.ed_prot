@@ -1,0 +1,52 @@
+import "../../../dataclasses/CDTCDescriptor/models/CDTCDescriptor.ed_dclass";
+import "../../../dataclasses/CDRecovAction/models/CDRecovAction.ed_dclass";
+
+
+/*
+ * EDROOM Protocol Model.
+*/ 
+
+
+protocol CPHK_FDIRCtrl{
+
+	uri :=es.uah.aut.srg.edroom.mclev.cmp_iface.CPHK_FDIRCtrl;
+	version :=v1;
+
+
+	/*
+	 * Input messages.
+	*/ 
+
+	input messages
+
+	{
+
+
+		/*
+		 * Asynchronous messages.
+		*/ 
+
+		send SHK_FDIR_TC(CDTCDescriptor(v1));
+
+	};
+
+
+
+	/*
+	 * Output messages.
+	*/ 
+
+	output messages
+
+	{
+
+
+		/*
+		 * Asynchronous messages.
+		*/ 
+
+		send SRecAction(CDRecovAction(v1));
+
+	};
+
+};

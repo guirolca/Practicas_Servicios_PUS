@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/ic_se_09100047m/!svn/ver/28/trunk/asw_pus_19_x_rtems_project_students/Debug/components/icuasw/src
+END
+ICUASWE.d
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/ic_se_09100047m/!svn/ver/28/trunk/asw_pus_19_x_rtems_project_students/Debug/components/icuasw/src/ICUASWE.d
+END
+ICUASWB.d
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/ic_se_09100047m/!svn/ver/28/trunk/asw_pus_19_x_rtems_project_students/Debug/components/icuasw/src/ICUASWB.d
+END
+ICUASWC.d
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/ic_se_09100047m/!svn/ver/28/trunk/asw_pus_19_x_rtems_project_students/Debug/components/icuasw/src/ICUASWC.d
+END
+ICUASWS.d
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/ic_se_09100047m/!svn/ver/28/trunk/asw_pus_19_x_rtems_project_students/Debug/components/icuasw/src/ICUASWS.d
+END
+subdir.mk
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/ic_se_09100047m/!svn/ver/28/trunk/asw_pus_19_x_rtems_project_students/Debug/components/icuasw/src/subdir.mk
+END
